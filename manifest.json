@@ -1,0 +1,32 @@
+{
+  "name": "Email to Kindle",
+  "version": "1.0",
+  "description": "Sends the current web page to kindle via email",
+  "icons": {
+    "128": "send-htmlized.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Email to kindle"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "externally_connectable": {
+    "ids": []
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "contentscript.js"
+      ]
+    }
+  ],
+  "options_page": "options.html",
+  "manifest_version": 3
+}

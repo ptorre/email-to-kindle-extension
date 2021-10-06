@@ -1,0 +1,55 @@
+body > div {
+  margin: 0 10em;
+  width: 40em;
+  padding: 1em;
+  border: solid green 1em;
+}
+
+label {
+  font-weight: bold;
+  font-size:large;
+  display: block;
+  margin-top: 1em;
+
+}
+
+input {
+  width: inherit;
+  height: 1.5em;
+}
+
+hr {
+  width: 100%;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  border-color: green;
+
+}
+
+button {
+  font-size: 2em;
+}
+
+
+#flexbox {
+  display: flex;
+  align-items: stretch;
+  flex-direction: row;
+  place-content: space-between;
+}
+
+#status {
+  font-size: large;
+  font-weight: bold;
+  align-self: center;
+  margin: auto;
+}
+
+#save {
+  align-self: flex-start;
+  /* margin: auto; */
+}
+
+#clear {
+  align-self: flex-end;
+}

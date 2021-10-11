@@ -42,7 +42,8 @@ async function postMail(url = '', title = '', html) {
             "Attachments": [{
                 "Filename": title + ".html",
                 "ContentType": "text/html",
-                "Base64Content": btoa(unescape(encodeURIComponent(html)))
+                "Base64Content": b64EncodeUnicode(html)
+
             }]
         }]
     }
@@ -99,6 +100,11 @@ chrome.runtime.onMessage.addListener(
     })
   }
 );
+
+function b64EncodeUnicode(str) {
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+      (_match, p1) => String.fromCharCode('0x' + p1)));
+}
 
 class FetchError extends Error {
   constructor(response, message) {

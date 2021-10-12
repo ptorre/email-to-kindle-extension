@@ -1,55 +1,60 @@
-body > div {
-  margin: 0 10em;
-  width: 40em;
-  padding: 1em;
-  border: solid green 1em;
+body {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    border: solid green 1em;
+    padding: 1em;
 }
 
-label {
-  font-weight: bold;
-  font-size:large;
-  display: block;
-  margin-top: 1em;
-
-}
-
-input {
-  width: inherit;
-  height: 1.5em;
+body>section {
+    display: inline-flex;
+    flex-flow: column;
+    justify-content: flex-start;
 }
 
 hr {
-  width: 100%;
-  margin-top: 2em;
-  margin-bottom: 2em;
-  border-color: green;
-
+    width: 100%;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    border-color: green;
 }
 
 button {
-  font-size: 2em;
+    font-size: 1.2em;
 }
 
+fieldset {
+    border-color: green;
+    border-top-style: groove;
+    border-right-style: none;
+    border-bottom-style: none;
+    border-left-style: none;
+    padding: 1em;
+    padding-bottom: 1em;
+}
 
-#flexbox {
-  display: flex;
-  align-items: stretch;
-  flex-direction: row;
-  place-content: space-between;
+label {
+    font-weight: bold;
+    font-size: large;
+    margin-right: 1em;
+}
+
+input {
+    height: 1.5em;
+    min-width: 20em;
+    flex: auto;
+}
+
+.row {
+    display: flex;
+    flex-flow: row wrap;
+    padding: .5em;
+    align-items: flex-end;
 }
 
 #status {
-  font-size: large;
-  font-weight: bold;
-  align-self: center;
-  margin: auto;
-}
-
-#save {
-  align-self: flex-start;
-  /* margin: auto; */
-}
-
-#clear {
-  align-self: flex-end;
+    font-size: large;
+    font-weight: bold;
+    margin: auto;
+    color: green;
 }

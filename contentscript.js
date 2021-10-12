@@ -3,12 +3,15 @@
 function clean_body() {
 
   let body = document.body.cloneNode(true);
-  if (document.URL.match('learning.oreilly.com/') != null) {
+
+  // TODO get the root element here before any other actions
+  if (document.URL.match(/learning.oreilly.com|learning-oreilly-com/) != null) {
     let div = body.querySelector('#sbo-rt-content');
-    let ov = div.querySelector("#ov");
+    let ov = div.querySelector('#ov');
     if (ov) {
       ov.parentNode.removeChild(ov);
     }
+    Array.from(div.querySelectorAll('.codelink')).forEach(e => e.parentNode.removeChild(e));
     body = document.createElement('body');
     body.appendChild(div);
   }
@@ -44,14 +47,14 @@ function stripCommentsAndHiddenElements(node) {
 }
 
 function getBase64Image(img) {
-  let canvas = document.createElement("canvas");
+  let canvas = document.createElement('canvas');
   canvas.width = img.getAttribute('width');
   canvas.height = img.getAttribute('height');
-  let ctx = canvas.getContext("2d");
+  let ctx = canvas.getContext('2d');
   ctx.drawImage(img, 0, 0);
   let dataURL;
   try {
-    dataURL = canvas.toDataURL("image/png");
+    dataURL = canvas.toDataURL('image/png');
   } catch (e) {
     // The dreaded tainted canvas exception occurs when the src
     // is at a different origin.
@@ -68,7 +71,7 @@ function canvasToImage(canvas) {
   let parentNode = canvas.parentNode
   let img = new Image(canvas.width, canvas.height);
   try {
-    img.src = canvas.toDataURL("image/png");
+    img.src = canvas.toDataURL('image/png');
     parentNode.removeChild(canvas);
     parentNode.appendChild(img);
   } catch (e) {
@@ -90,9 +93,9 @@ chrome.runtime.onMessage.addListener(
       meta.setAttribute('http-equiv', 'content-type');
       meta.setAttribute('content', 'text/html; charset=utf-8');
       doc.head.appendChild(meta)
-      doc.body.innerHTML = body;
+      doc.body.innerHTML = body.replace(/\n/g, "");
       doc.body.style.cssText = 'text-align: left;';
-      let html = doc.documentElement.outerHTML;
+      let html = '<!doctype html>' + doc.documentElement.outerHTML;
 
       chrome.runtime.sendMessage({
         message: 'send-page',

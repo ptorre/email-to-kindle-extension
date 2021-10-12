@@ -1,34 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8">
     <title>Options</title>
     <link rel="stylesheet" href="options.css">
-  </head>
-  <div>
-    <h1>Email to Kindle Extension</h1>
-    <h2>Mailjet Account Setup</h2>
-    <hr>
-    <label for="username">Username</label>
-    <input type="text" id="username" value="">
-    <label for="password">Password:</label>
-    <input type="text" id="password" value="">
-    <hr>
-    <label for="fromEmail">From email:</label>
-    <input type="email" id="fromEmail" value=""/>
-    <label for="fromName">From name:</label>
-    <input type="text" id="fromName" value=""/>
-    <hr>
-    <label for="toEmail">To Email:</label>
-    <input type="email" id="toEmail" value=""/>
-    <label for="toName">To Name:</label>
-    <input type="text" id="toName" value=""/>
-    <hr>
-    <div id="flexbox">
-      <button id="save">Save</button>
-      <span id="status"></span>
-      <button id="clear">Clear Stored Settings</button>
-    </div>
-  </div>
-  <script src="options.js"></script>
-</body></html>
+</head>
+
+<body>
+    <div>
+        <section id="account">
+            <h1>Email to Kindle Extension</h1>
+            <h2>Mailjet Account Setup</h2>
+            <fieldset>
+                <div class="row">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" value="">
+                </div>
+                <div class="row">
+                    <label for="password">Password:</label>
+                    <input type="text" id="password" value="">
+                </div>
+            </fieldset>
+            <fieldset>
+                <div class="row">
+                    <label for="fromEmail">From email:</label>
+                    <input type="email" id="fromEmail" value="">
+                </div>
+                <div class="row">
+                    <label for="fromName">From name:</label>
+                    <input type="text" id="fromName" value="">
+                </div>
+            </fieldset>
+            <fieldset>
+                <div class="row">
+                    <label for="toEmail">To Email:</label>
+                    <input type="email" id="toEmail" value="" />
+                </div>
+                <div class="row">
+                    <label for="toName">To Name:</label>
+                    <input type="text" id="toName" value="" />
+                </div>
+            </fieldset>
+            <fieldset class="row">
+                <button id="save">Save</button>
+                <span id="status"></span>
+                <button id="clear">Clear From Storage</button>
+            </fieldset>
+        </div>
+    </section>
+    <section id="rules">
+    </section>
+    <script src="options.js"></script>
+</body>
+
+</html>

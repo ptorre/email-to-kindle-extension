@@ -9,6 +9,7 @@ function clean_body() {
     if (ov) {
       ov.parentNode.removeChild(ov);
     }
+    Array.from(div.querySelectorAll('.codelink')).forEach(e => e.parentNode.removeChild(e));
     body = document.createElement('body');
     body.appendChild(div);
   }

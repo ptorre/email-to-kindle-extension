@@ -11,7 +11,7 @@ function save_options() {
     chrome.storage.local.set(Object.fromEntries(options), () => {
         // Update status to let user know options were saved.
         let status = document.getElementById('status');
-        status.textContent = 'Options saved.';
+        status.textContent = 'Options Saved';
         setTimeout(function () {
             status.textContent = '';
         }, 750);

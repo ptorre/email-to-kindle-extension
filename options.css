@@ -6,7 +6,7 @@ body {
     padding: 1em;
 }
 
-body>div {
+body>section {
     display: inline-flex;
     flex-flow: column;
     justify-content: flex-start;

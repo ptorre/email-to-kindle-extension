@@ -3,7 +3,9 @@
 function clean_body() {
 
   let body = document.body.cloneNode(true);
-  if (document.URL.match('learning.oreilly.com/') != null) {
+
+  // TODO get the root element here before any other actions
+  if (document.URL.match(/learning.oreilly.com|learning-oreilly-com/) != null) {
     let div = body.querySelector('#sbo-rt-content');
     let ov = div.querySelector('#ov');
     if (ov) {
@@ -91,7 +93,7 @@ chrome.runtime.onMessage.addListener(
       meta.setAttribute('http-equiv', 'content-type');
       meta.setAttribute('content', 'text/html; charset=utf-8');
       doc.head.appendChild(meta)
-      doc.body.innerHTML = body;
+      doc.body.innerHTML = body.replace(/\n/g, "");
       doc.body.style.cssText = 'text-align: left;';
       let html = '<!doctype html>' + doc.documentElement.outerHTML;
 

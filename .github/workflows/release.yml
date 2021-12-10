@@ -1,0 +1,37 @@
+name: Push release to container registry
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  # get this:  https://chromium.googlesource.com/chromium/src/+archive/refs/tags/96.0.4664.92/components/crx_file.tar.gz
+  # compile builder source
+  # use a secret as the pem file
+  #
+  mvn-build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Clean Compile & Test
+        run: mvn --batch-mode --update-snapshots clean compile test
+      - name: Build and push image
+        run: mvn --batch-mode jib:build -Pdistroless
+        env:
+            REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+            REGISTRY_USERNAME: ${{ github.actor }}
+            REGISTRY: ghcr.io
+            REPOSITORY: ptorre
+      - name: Done
+        run: echo extension successfully published

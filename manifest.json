@@ -1,6 +1,7 @@
 {
   "name": "Email to Kindle",
   "version": "1.0",
+  "update_url": "https://somegithubpath/email-to-kindle-extension.xml",
   "description": "Sends the current web page to kindle via email",
   "icons": {
     "128": "send-htmlized.png"

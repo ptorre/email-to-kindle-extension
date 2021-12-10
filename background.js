@@ -20,7 +20,7 @@ chrome.action.onClicked.addListener(function(tab) {
 
 function getStoredConfig() {
   return new Promise((resolve, reject) => {
-    chrome.storage.local.get(null, (data) => {
+    chrome.storage.sync.get(null, (data) => {
       if (chrome.runtime.lastError) {
         return reject(chrome.runtime.lastError);
       }

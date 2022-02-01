@@ -1,8 +1,6 @@
 'use strict';
 
-function clean_body() {
-
-  let body = document.body.cloneNode(true);
+function get_body() {
 
   // TODO get the root element here before any other actions
   if (document.URL.match(/learning.oreilly.com|learning-oreilly-com/) != null) {
@@ -12,9 +10,23 @@ function clean_body() {
       ov.parentNode.removeChild(ov);
     }
     Array.from(div.querySelectorAll('.codelink')).forEach(e => e.parentNode.removeChild(e));
-    body = document.createElement('body');
+    let body = document.createElement('body');
     body.appendChild(div);
+    return body;
   }
+
+  if (document.URL.match(/read.overdrive.com/) != null) {
+    let content = document.querySelectorAll('.article-sheet iframe')[0].contentDocument;
+    let body = document.createElement('body');
+    body.appendChild(content.body.firstElementChild);
+    return body;
+  }
+
+  // By default return copy of document body
+  return document.body.cloneNode(true);
+}
+
+function clean_body(body) {
 
   Array.from(body.getElementsByTagName('img')).forEach(x => x.src = getBase64Image(x));
   Array.from(body.getElementsByTagName('canvas')).forEach(canvasToImage);
@@ -85,7 +97,7 @@ chrome.runtime.onMessage.addListener(
     if (request.message == 'get-page') {
       let url = document.URL;
       let title = document.title;
-      let body = clean_body();
+      let body = clean_body(get_body());
 
       let doc = document.implementation.createHTMLDocument(title);
       let meta = doc.createElement('meta');

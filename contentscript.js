@@ -4,21 +4,26 @@ function get_body() {
 
   // TODO get the root element here before any other actions
   if (document.URL.match(/learning.oreilly.com|learning-oreilly-com/) != null) {
-    let div = body.querySelector('#sbo-rt-content');
-    let ov = div.querySelector('#ov');
+    let content = document.body.querySelector('#sbo-rt-content');
+    let ov = content.querySelector('#ov');
     if (ov) {
       ov.parentNode.removeChild(ov);
     }
-    Array.from(div.querySelectorAll('.codelink')).forEach(e => e.parentNode.removeChild(e));
+    Array.from(content.querySelectorAll('.codelink')).forEach(e => e.parentNode.removeChild(e));
     let body = document.createElement('body');
-    body.appendChild(div);
+    body.appendChild(content.cloneNode(true));
     return body;
   }
 
   if (document.URL.match(/read.overdrive.com/) != null) {
     let content = document.querySelectorAll('.article-sheet iframe')[0].contentDocument;
+    return content.body.cloneNode(true)
+  }
+
+  if (document.URL.match(/oreilly.com\/radar/) != null) {
+    let content = document.querySelector('.post-radar');
     let body = document.createElement('body');
-    body.appendChild(content.body.firstElementChild);
+    body.appendChild(content.cloneNode(true));
     return body;
   }
 
@@ -28,7 +33,7 @@ function get_body() {
 
 function clean_body(body) {
 
-  Array.from(body.getElementsByTagName('img')).forEach(x => x.src = getBase64Image(x));
+  Array.from(body.ownerDocument.images).forEach(x => x.src = getBase64Image(x));
   Array.from(body.getElementsByTagName('canvas')).forEach(canvasToImage);
 
   let stripElements = [
@@ -60,8 +65,8 @@ function stripCommentsAndHiddenElements(node) {
 
 function getBase64Image(img) {
   let canvas = document.createElement('canvas');
-  canvas.width = img.getAttribute('width');
-  canvas.height = img.getAttribute('height');
+  canvas.width = img.getAttribute('width') || img.naturalWidth;
+  canvas.height = img.getAttribute('height') || img.naturalHeight;
   let ctx = canvas.getContext('2d');
   ctx.drawImage(img, 0, 0);
   let dataURL;

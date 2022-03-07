@@ -1,6 +1,6 @@
 {
   "name": "Email to Kindle",
-  "version": "1.0",
+  "version": "1.0.1",
   "description": "Sends the current web page to kindle via email",
   "icons": {
     "128": "send-htmlized.png"

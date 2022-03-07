@@ -1,15 +1,60 @@
 'use strict';
 
+let configuredActions = [
+    {
+        matcher: /learning.oreilly.com|learning-oreilly-com/,
+        contentSelector: '#sbo-rt-content',
+        filterSelectors: ['.codelink', '#ov'],
+        styleSheetMatchers: ['epub-book']
+    },
+    {
+        matcher: /read.overdrive.com/,
+        contentSelector: '.article-sheet iframe',
+        filterSelectors: [],
+        styleSheetMatchers: []
+    },
+    {
+        matcher: /oreilly.com\/radar/,
+        contentSelector: '.post-radar',
+        filterSelectors: [],
+        styleSheetMatchers: []
+    },
+    {
+        matcher: /www.premierguitar.com\/diy/,
+        contentSelector: 'article',
+        filterSelectors: [],
+        styleSheetMatchers: []
+    },
+];
+
 chrome.runtime.onMessage.addListener(
-    (request, _sender, _sendResponse) => {
-        if (request.message === 'get-page') {
-            let {body, url, title} = getBody();
-            if (!body || !url || !title) {
+    (request, _sender, _sendResponse) =>
+    {
+        if (request.message === 'get-page')
+        {
+            const {
+                contentSelector,
+                filterSelectors,
+                styleSheetMatchers
+            } = configuredActions.find(a => document.URL.match(a.matcher) != null);
+            let {
+                body,
+                url,
+                title
+            } = getBody(contentSelector);
+            if (!body)
+            {
                 console.error(`Bailing out! ${{body: body, url: url, title: title}}`);
                 return;
             }
+            filterSelectors.forEach(filter =>
+            {
+                Array.from(body.querySelectorAll(filter)).forEach(e => e.parentNode.removeChild(e));
+            });
             stripUselessElements(body);
             stripCommentsAndHiddenElements(body);
+            stripUselessAttributes(body);
+            fixWhiteSpace(body);
 
             let doc = document.implementation.createHTMLDocument(title);
             let meta = doc.createElement('meta');
@@ -17,8 +62,11 @@ chrome.runtime.onMessage.addListener(
             meta.setAttribute('http-equiv', 'content-type');
             meta.setAttribute('content', 'text/html; charset=utf-8');
             doc.head.appendChild(meta)
-            doc.body.innerHTML = body.innerHTML.replace(/\n/g, "");
+            embedStyleSheets(doc, styleSheetMatchers);
+            doc.body.innerHTML = body.innerHTML;
             doc.body.style.cssText = 'text-align: left;';
+            doc.body.id = 'book-content';
+
             let html = '<!doctype html>' + doc.documentElement.outerHTML;
 
             chrome.runtime.sendMessage({
@@ -31,43 +79,44 @@ chrome.runtime.onMessage.addListener(
     }
 );
 
-function getBody() {
-    let actions = [
+function embedStyleSheets(doc, styleSheetMatchers) {
+    if (!styleSheetMatchers.length) {
+        return;
+    }
+    Array.from(document.styleSheets)
+        .filter(styleSheet =>
         {
-            matcher: /learning.oreilly.com|learning-oreilly-com/,
-            contentSelector: '#sbo-rt-content',
-            filterSelectors: ['.codelink', '#ov']
-        },
+            return styleSheet.href
+                && styleSheetMatchers.findIndex(m => styleSheet.href.match(m) !== null) !== -1;
+        })
+        .forEach((styleSheet) =>
         {
-            matcher: /read.overdrive.com/,
-            contentSelector: '.article-sheet iframe',
-            filterSelectors: []
-        },
-        {
-            matcher: /oreilly.com\/radar/,
-            contentSelector: '.post-radar',
-            filterSelectors: []
-        },
-        {
-            matcher: /www.premierguitar.com\/diy/,
-            contentSelector: 'article',
-            filterSelectors: []
-        },
-    ];
+            let cssText =
+                Array.from(styleSheet.cssRules)
+                    .reduce((prev, cssRule) =>
+                    {
+                        return prev + '\n' + cssRule.cssText
+                    }, '');
+            let style = document.createElement('style');
+            style.innerHTML = cssText;
+            doc.head.appendChild(style);
+        });
+}
+
+function getBody(contentSelector)
+{
     let url = document.URL;
-    let title = document.title
+    let title = document.title || 'Title Unknown';
     let content = document.body;
 
-    let action = actions.find(a => document.URL.match(a.matcher) != null);
-    if (action) {
-        content = document.querySelector(action.contentSelector);
+    if (contentSelector)
+    {
+        content = document.querySelector(contentSelector);
         if (!content) {
-            throw(`Content not found with selector: ${action.contentSelector}`);
+            throw (`Content not found with selector: ${contentSelector}`);
         }
-        action.filterSelectors.forEach(filter => {
-            Array.from(content.querySelectorAll(filter)).forEach(e => e.parentNode.removeChild(e));
-        })
-        if (content && content.tagName === 'IFRAME') {
+        if (content.tagName === 'IFRAME')
+        {
             title = `${content.ownerDocument.title} : ${content.contentDocument.title}`;
             content = content.contentDocument.body;
         }
@@ -80,13 +129,29 @@ function getBody() {
     };
 }
 
+function stripUselessAttributes(body)
+{
+    for (let a of body.querySelectorAll('a'))
+    {
+        Array.from(a.getAttributeNames())
+            .forEach(name =>
+            {
+                if (!name.match(/href|id/))
+                {
+                    a.removeAttribute(name);
+                }
+            });
+    }
+}
+
 function stripUselessElements(body) {
 
     let stripElements = [
         'iframe', 'script', 'style', 'noscript', 'head',
         'input', 'textarea', 'select', 'button'
     ];
-    for (let i in stripElements) {
+    for (let i in stripElements)
+    {
         let els = [];
         let ns = body.getElementsByTagName(stripElements[i]);
         for (let j = 0; j < ns.length; j++) els[els.length] = ns[j];
@@ -96,18 +161,33 @@ function stripUselessElements(body) {
     }
 }
 
+function fixWhiteSpace(body) {
+    Array.from(body.querySelectorAll('pre')).forEach(pre =>
+    {
+        pre.innerHTML = pre.innerHTML.replace(/\n/g, "<br>");
+    })
+    body.innerHTML = body.innerHTML.replace(/\n|\t/g, "");
+}
+
 function stripCommentsAndHiddenElements(node) {
-    if (node.nodeType === 8 /* comment */) node.parentNode.removeChild(node);
-    else if (node.nodeType === 1 /* element */) {
-        if (node?.style?.display === 'none' || node?.style?.visibility === 'hidden') {
+    if (node.nodeType === node.COMMENT_NODE)
+    {
+        node.parentNode.removeChild(node);
+    }
+    else if (node.nodeType === node.ELEMENT_NODE)
+    {
+        if (node?.style?.display === 'none' || node?.style?.visibility === 'hidden')
+        {
             node.parentNode.removeChild(node);
-        } else {
+        } else
+        {
             Array.from(node.childNodes).forEach(stripCommentsAndHiddenElements);
         }
     }
 }
 
-function renderOnCanvas(img, width, height) {
+function renderOnCanvas(img, width, height)
+{
     let canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
@@ -116,7 +196,8 @@ function renderOnCanvas(img, width, height) {
     return canvas;
 }
 
-function getBase64Image(img) {
+function getBase64Image(img)
+{
     let width = img.naturalWidth || img.getAttribute('width');
     let height = img.naturalHeight || img.getAttribute('height');
     try {
@@ -137,14 +218,15 @@ function getBase64Image(img) {
     return img.src;
 }
 
-function inlineImages(content) {
+function inlineImages(content)
+{
     let images = content.getElementsByTagName('img') || content.ownerDocument.images;
     Array.from(images).forEach(x => x.src = getBase64Image(x));
 }
 
-function cloneBody(content) {
+function cloneBody(content)
+{
     let body = document.createElement('body');
     body.appendChild(content.cloneNode(true));
     return body;
 }
-

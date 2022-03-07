@@ -70,24 +70,24 @@ chrome.runtime.onMessage.addListener(
       switch(message) {
       case 'send-page':
         console.info(`message: ${message}, url: ${url}, title: ${title}`);
-
-//        postMail('http://localhost:5000/send', title, html)
         postMail('https://api.mailjet.com/v3.1/send', title, html)
-        .then(response => {
-          showBadgeTextTimeout(1000, "OK");
-          chrome.action.setTitle({ title: 'OK: ' + response.statusText });
-        })
-        .catch(err => {
-          console.log(`Error: ${err.message}`);
-          let response = err.response;
-          if (response.status === 403 || response.status === 401) {
-            chrome.action.setBadgeText({ text: 'AUTH' });
-          } else {
-            chrome.action.setBadgeText({ text: 'ERR' });
-          }
-          chrome.action.setBadgeBackgroundColor({ color: '#F00' });
-          chrome.action.setTitle({ title: String(err.message) });
-        });
+            .then(response => {
+                showBadgeTextTimeout(4000, "OK");
+                chrome.action.setBadgeBackgroundColor({color: '#0F0'});
+                chrome.action.setTitle({title: 'OK: ' + response.statusText});
+            })
+            .catch(err => {
+                console.error(`Error: ${err.message}`);
+                let response = err.response;
+                if (response?.status === 403 || response?.status === 401) {
+                    chrome.action.setBadgeText({text: 'AUTH'});
+                } else {
+                    chrome.action.setBadgeText({text: 'ERR'});
+                    console.log(html);
+                }
+                chrome.action.setBadgeBackgroundColor({color: '#F00'});
+                chrome.action.setTitle({title: String(err.message)});
+            });
         break;
       default:
         console.log("received unknown message");

@@ -117,8 +117,8 @@ function renderOnCanvas(img, width, height) {
 }
 
 function getBase64Image(img) {
-    let width = img.getAttribute('width') || img.naturalWidth;
-    let height = img.getAttribute('height') || img.naturalHeight;
+    let width = img.naturalWidth || img.getAttribute('width');
+    let height = img.naturalHeight || img.getAttribute('height');
     try {
         let canvas = renderOnCanvas(img, width, height);
         return canvas.toDataURL('image/png');
@@ -138,7 +138,7 @@ function getBase64Image(img) {
 }
 
 function inlineImages(content) {
-    let images = content.images || content.ownerDocument.images;
+    let images = content.getElementsByTagName('img') || content.ownerDocument.images;
     Array.from(images).forEach(x => x.src = getBase64Image(x));
 }
 

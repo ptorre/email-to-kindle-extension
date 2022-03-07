@@ -107,29 +107,39 @@ function stripCommentsAndHiddenElements(node) {
     }
 }
 
-function getBase64Image(img) {
+function renderOnCanvas(img, width, height) {
     let canvas = document.createElement('canvas');
-    canvas.width = img.getAttribute('width') || img.naturalWidth;
-    canvas.height = img.getAttribute('height') || img.naturalHeight;
+    canvas.width = width;
+    canvas.height = height;
     let ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0);
-    let dataURL;
+    return canvas;
+}
+
+function getBase64Image(img) {
+    let width = img.getAttribute('width') || img.naturalWidth;
+    let height = img.getAttribute('height') || img.naturalHeight;
     try {
-        dataURL = canvas.toDataURL('image/png');
+        let canvas = renderOnCanvas(img, width, height);
+        return canvas.toDataURL('image/png');
     } catch (e) {
-        // The dreaded tainted canvas exception occurs when the src
-        // is at a different origin.
-        // TODO move this logic to the service worker
         console.log(e);
-        dataURL = img.src;
+        console.log("trying again!");
+        img.crossOrigin = "Anonymous";
+        try {
+            let canvas = renderOnCanvas(img, width, height);
+            return canvas.toDataURL('image/png');
+        } catch (e) {
+            console.log(e);
+            console.log("giving up!");
+        }
     }
-    return dataURL;
+    return img.src;
 }
 
 function inlineImages(content) {
     let images = content.images || content.ownerDocument.images;
     Array.from(images).forEach(x => x.src = getBase64Image(x));
-
 }
 
 function cloneBody(content) {

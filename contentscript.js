@@ -25,6 +25,12 @@ let configuredActions = [
         filterSelectors: [],
         styleSheetMatchers: []
     },
+    {
+        matcher: /./,
+        contentSelector: 'body',
+        filterSelectors: [],
+        styleSheetMatchers: []
+    }
 ];
 
 chrome.runtime.onMessage.addListener(
